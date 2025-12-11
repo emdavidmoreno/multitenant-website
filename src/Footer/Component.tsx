@@ -12,11 +12,15 @@ interface FooterProps {
 }
 
 export async function Footer({ tenant }: FooterProps) {
-  if (!tenant) return
-  const tenantId = tenant.id
-  const footerData = (await getTenantCachedGlobal('footer', 1, tenantId)()) as Footer
+  if (!tenant) return null
 
-  const navItems = footerData?.navItems || []
+  const tenantId = tenant.id
+  const footerData = (await getTenantCachedGlobal('footer', 1, tenantId)()) as Footer | null
+
+  // Handle null footer data gracefully
+  if (!footerData) return null
+
+  const navItems = footerData.navItems || []
 
   return (
     <footer className="mt-auto border-t border-border bg-black dark:bg-card text-white">

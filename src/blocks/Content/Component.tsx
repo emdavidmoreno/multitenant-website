@@ -5,9 +5,10 @@ import RichText from '@/components/RichText'
 import type { ContentBlock as ContentBlockProps } from '@/payload-types'
 
 import { CMSLink } from '../../components/Link'
+import { AnimatedBlock } from '@/components/AnimatedBlock'
 
 export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
-  const { columns } = props
+  const { columns, contentWidth, animation } = props
 
   const colsSpanClasses = {
     full: '12',
@@ -16,8 +17,17 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
     twoThirds: '8',
   }
 
+  const contentWidthClasses = {
+    container: 'container',
+    full: 'w-full',
+    default: '',
+  }
+
   return (
-    <div className="container my-16">
+    <AnimatedBlock
+      animation={animation}
+      className={cn(contentWidthClasses[contentWidth ?? 'default'], 'my-16')}
+    >
       <div className="grid grid-cols-4 lg:grid-cols-12 gap-y-8 gap-x-16">
         {columns &&
           columns.length > 0 &&
@@ -38,6 +48,6 @@ export const ContentBlock: React.FC<ContentBlockProps> = (props) => {
             )
           })}
       </div>
-    </div>
+    </AnimatedBlock>
   )
 }

@@ -8,6 +8,7 @@ import {
 } from '@payloadcms/richtext-lexical'
 
 import { link } from '@/fields/link'
+import { animationField } from '@/fields/animation'
 
 const columnFields: Field[] = [
   {
@@ -68,6 +69,21 @@ export const Content: Block = {
   interfaceName: 'ContentBlock',
   fields: [
     {
+      name: 'contentWidth',
+      type: 'select',
+      defaultValue: 'container',
+      options: [
+        {
+          label: 'Container',
+          value: 'container',
+        },
+        {
+          label: 'Full Width',
+          value: 'full',
+        },
+      ],
+    },
+    {
       name: 'columns',
       type: 'array',
       admin: {
@@ -75,5 +91,6 @@ export const Content: Block = {
       },
       fields: columnFields,
     },
+    animationField,
   ],
 }

@@ -201,7 +201,16 @@ export interface Page {
       | null;
     media?: (number | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | CallToActionBlock
+    | ContentBlock
+    | ContentMediaBlock
+    | ContentMapBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+    | CarouselBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -524,6 +533,28 @@ export interface CallToActionBlock {
         id?: string | null;
       }[]
     | null;
+  animation?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'fadeUp'
+          | 'fadeDown'
+          | 'fade'
+          | 'slideLeft'
+          | 'slideRight'
+          | 'scale'
+          | 'zoom'
+          | 'slideUp'
+          | 'slideDown'
+          | 'none'
+        )
+      | null;
+    duration?: ('fast' | 'normal' | 'slow' | 'verySlow') | null;
+    /**
+     * Delay before animation starts (0-2 seconds)
+     */
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'cta';
@@ -533,6 +564,7 @@ export interface CallToActionBlock {
  * via the `definition` "ContentBlock".
  */
 export interface ContentBlock {
+  contentWidth?: ('container' | 'full') | null;
   columns?:
     | {
         size?: ('oneThird' | 'half' | 'twoThirds' | 'full') | null;
@@ -574,9 +606,207 @@ export interface ContentBlock {
         id?: string | null;
       }[]
     | null;
+  animation?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'fadeUp'
+          | 'fadeDown'
+          | 'fade'
+          | 'slideLeft'
+          | 'slideRight'
+          | 'scale'
+          | 'zoom'
+          | 'slideUp'
+          | 'slideDown'
+          | 'none'
+        )
+      | null;
+    duration?: ('fast' | 'normal' | 'slow' | 'verySlow') | null;
+    /**
+     * Delay before animation starts (0-2 seconds)
+     */
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'content';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentMediaBlock".
+ */
+export interface ContentMediaBlock {
+  contentWidth?: ('container' | 'full') | null;
+  enableMedia?: boolean | null;
+  /**
+   * Only applies when media is enabled
+   */
+  textPosition?: ('left' | 'right') | null;
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  textAlignment?: ('left' | 'center' | 'right') | null;
+  media?: (number | null) | Media;
+  imageBorderRadius?: ('none' | 'md' | 'lg' | 'xl') | null;
+  enableCTA?: boolean | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  animation?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'fadeUp'
+          | 'fadeDown'
+          | 'fade'
+          | 'slideLeft'
+          | 'slideRight'
+          | 'scale'
+          | 'zoom'
+          | 'slideUp'
+          | 'slideDown'
+          | 'none'
+        )
+      | null;
+    duration?: ('fast' | 'normal' | 'slow' | 'verySlow') | null;
+    /**
+     * Delay before animation starts (0-2 seconds)
+     */
+    delay?: number | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contentMedia';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentMapBlock".
+ */
+export interface ContentMapBlock {
+  contentWidth?: ('container' | 'full') | null;
+  enableMap?: boolean | null;
+  /**
+   * Only applies when map is enabled
+   */
+  textPosition?: ('left' | 'right') | null;
+  richText: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  textAlignment?: ('left' | 'center' | 'right') | null;
+  mapLocation?: {
+    /**
+     * Enter a full address (e.g., "123 Main St, City, State, ZIP")
+     */
+    address?: string | null;
+    useCoordinates?: boolean | null;
+    latitude?: number | null;
+    longitude?: number | null;
+    /**
+     * Zoom level from 1 (world) to 20 (street)
+     */
+    zoom?: number | null;
+  };
+  /**
+   * CSS height value (e.g., "400px", "50vh")
+   */
+  mapHeight?: string | null;
+  mapBorderRadius?: ('none' | 'md' | 'lg' | 'xl') | null;
+  enableCTA?: boolean | null;
+  links?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  animation?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'fadeUp'
+          | 'fadeDown'
+          | 'fade'
+          | 'slideLeft'
+          | 'slideRight'
+          | 'scale'
+          | 'zoom'
+          | 'slideUp'
+          | 'slideDown'
+          | 'none'
+        )
+      | null;
+    duration?: ('fast' | 'normal' | 'slow' | 'verySlow') | null;
+    /**
+     * Delay before animation starts (0-2 seconds)
+     */
+    delay?: number | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contentMap';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -584,6 +814,28 @@ export interface ContentBlock {
  */
 export interface MediaBlock {
   media: number | Media;
+  animation?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'fadeUp'
+          | 'fadeDown'
+          | 'fade'
+          | 'slideLeft'
+          | 'slideRight'
+          | 'scale'
+          | 'zoom'
+          | 'slideUp'
+          | 'slideDown'
+          | 'none'
+        )
+      | null;
+    duration?: ('fast' | 'normal' | 'slow' | 'verySlow') | null;
+    /**
+     * Delay before animation starts (0-2 seconds)
+     */
+    delay?: number | null;
+  };
   id?: string | null;
   blockName?: string | null;
   blockType: 'mediaBlock';
@@ -821,6 +1073,107 @@ export interface Form {
     | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CarouselBlock".
+ */
+export interface CarouselBlock {
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  contentTextAlignment?: ('left' | 'center' | 'right') | null;
+  populateBy?: ('manual' | 'collection') | null;
+  relationTo?: 'posts' | null;
+  categories?: (number | Category)[] | null;
+  limit?: number | null;
+  manualItems?:
+    | {
+        title?: string | null;
+        description?: string | null;
+        image?: (number | null) | Media;
+        enableLink?: boolean | null;
+        link?: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'posts';
+                value: number | Post;
+              } | null);
+          url?: string | null;
+          label: string;
+          /**
+           * Choose how the link should be rendered.
+           */
+          appearance?: ('default' | 'outline') | null;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Maximum number of items to display (1-8)
+   */
+  maxItems?: number | null;
+  itemSizes?: {
+    mobile?:
+      | ('auto' | 'full' | '1/2' | '1/3' | '2/3' | '1/4' | '3/4' | '1/5' | '2/5' | '3/5' | '4/5' | '1/6' | '5/6')
+      | null;
+    tablet?:
+      | ('auto' | 'full' | '1/2' | '1/3' | '2/3' | '1/4' | '3/4' | '1/5' | '2/5' | '3/5' | '4/5' | '1/6' | '5/6')
+      | null;
+    desktop?:
+      | ('auto' | 'full' | '1/2' | '1/3' | '2/3' | '1/4' | '3/4' | '1/5' | '2/5' | '3/5' | '4/5' | '1/6' | '5/6')
+      | null;
+  };
+  carouselSettings?: {
+    loop?: boolean | null;
+    align?: ('start' | 'center' | 'end') | null;
+    showArrows?: boolean | null;
+    showDots?: boolean | null;
+  };
+  useImages?: boolean | null;
+  animation?: {
+    enabled?: boolean | null;
+    type?:
+      | (
+          | 'fadeUp'
+          | 'fadeDown'
+          | 'fade'
+          | 'slideLeft'
+          | 'slideRight'
+          | 'scale'
+          | 'zoom'
+          | 'slideUp'
+          | 'slideDown'
+          | 'none'
+        )
+      | null;
+    duration?: ('fast' | 'normal' | 'slow' | 'verySlow') | null;
+    /**
+     * Delay before animation starts (0-2 seconds)
+     */
+    delay?: number | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'carousel';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1200,9 +1553,12 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
+        contentMedia?: T | ContentMediaBlockSelect<T>;
+        contentMap?: T | ContentMapBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        carousel?: T | CarouselBlockSelect<T>;
       };
   meta?:
     | T
@@ -1239,6 +1595,14 @@ export interface CallToActionBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  animation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -1247,6 +1611,7 @@ export interface CallToActionBlockSelect<T extends boolean = true> {
  * via the `definition` "ContentBlock_select".
  */
 export interface ContentBlockSelect<T extends boolean = true> {
+  contentWidth?: T;
   columns?:
     | T
     | {
@@ -1265,6 +1630,101 @@ export interface ContentBlockSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  animation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        duration?: T;
+        delay?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentMediaBlock_select".
+ */
+export interface ContentMediaBlockSelect<T extends boolean = true> {
+  contentWidth?: T;
+  enableMedia?: T;
+  textPosition?: T;
+  richText?: T;
+  textAlignment?: T;
+  media?: T;
+  imageBorderRadius?: T;
+  enableCTA?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  animation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        duration?: T;
+        delay?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContentMapBlock_select".
+ */
+export interface ContentMapBlockSelect<T extends boolean = true> {
+  contentWidth?: T;
+  enableMap?: T;
+  textPosition?: T;
+  richText?: T;
+  textAlignment?: T;
+  mapLocation?:
+    | T
+    | {
+        address?: T;
+        useCoordinates?: T;
+        latitude?: T;
+        longitude?: T;
+        zoom?: T;
+      };
+  mapHeight?: T;
+  mapBorderRadius?: T;
+  enableCTA?: T;
+  links?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  animation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -1274,6 +1734,14 @@ export interface ContentBlockSelect<T extends boolean = true> {
  */
 export interface MediaBlockSelect<T extends boolean = true> {
   media?: T;
+  animation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -1299,6 +1767,64 @@ export interface FormBlockSelect<T extends boolean = true> {
   form?: T;
   enableIntro?: T;
   introContent?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CarouselBlock_select".
+ */
+export interface CarouselBlockSelect<T extends boolean = true> {
+  content?: T;
+  contentTextAlignment?: T;
+  populateBy?: T;
+  relationTo?: T;
+  categories?: T;
+  limit?: T;
+  manualItems?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+        enableLink?: T;
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        id?: T;
+      };
+  maxItems?: T;
+  itemSizes?:
+    | T
+    | {
+        mobile?: T;
+        tablet?: T;
+        desktop?: T;
+      };
+  carouselSettings?:
+    | T
+    | {
+        loop?: T;
+        align?: T;
+        showArrows?: T;
+        showDots?: T;
+      };
+  useImages?: T;
+  animation?:
+    | T
+    | {
+        enabled?: T;
+        type?: T;
+        duration?: T;
+        delay?: T;
+      };
   id?: T;
   blockName?: T;
 }
