@@ -1,4 +1,4 @@
-import type { CollectionSlug, GlobalSlug, Payload, PayloadRequest, File } from 'payload'
+import type { CollectionSlug, Payload, PayloadRequest, File } from 'payload'
 
 import { contactForm as contactFormData } from './contact-form'
 import { contact as contactPageData } from './contact-page'
@@ -18,9 +18,11 @@ const collections: CollectionSlug[] = [
   'forms',
   'form-submissions',
   'search',
+  'header',
+  'footer',
 ]
 
-const globals: GlobalSlug[] = ['header', 'footer']
+const headerFooterCollections: CollectionSlug[] = ['header', 'footer']
 
 const categories = ['Technology', 'News', 'Finance', 'Design', 'Software', 'Engineering']
 
@@ -43,20 +45,9 @@ export const seed = async ({
   // the custom `/api/seed` endpoint does not
   payload.logger.info(`— Clearing collections and globals...`)
 
-  // clear the database
+  // clear header and footer collections
   await Promise.all(
-    globals.map((global) =>
-      payload.updateGlobal({
-        slug: global,
-        data: {
-          navItems: [],
-        },
-        depth: 0,
-        context: {
-          disableRevalidate: true,
-        },
-      }),
-    ),
+    headerFooterCollections.map((collection) => payload.db.deleteMany({ collection, req, where: {} })),
   )
 
   await Promise.all(
@@ -217,62 +208,149 @@ export const seed = async ({
 
   payload.logger.info(`— Seeding globals...`)
 
-  await Promise.all([
-    payload.updateGlobal({
-      slug: 'header',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Posts',
-              url: '/posts',
-            },
-          },
-          {
-            link: {
-              type: 'reference',
-              label: 'Contact',
-              reference: {
-                relationTo: 'pages',
-                value: contactPage.id,
+  // Find or create header document
+  const existingHeader = await payload.find({
+    collection: 'header',
+    limit: 1,
+    where: {},
+  })
+
+  await (existingHeader.docs[0]
+    ? payload.update({
+        id: existingHeader.docs[0].id,
+        collection: 'header',
+        data: {
+          navItems: [
+            {
+              link: {
+                type: 'custom',
+                label: 'Posts',
+                url: '/posts',
               },
             },
-          },
-        ],
-      },
-    }),
-    payload.updateGlobal({
-      slug: 'footer',
-      data: {
-        navItems: [
-          {
-            link: {
-              type: 'custom',
-              label: 'Admin',
-              url: '/admin',
+            {
+              link: {
+                type: 'reference',
+                label: 'Contact',
+                reference: {
+                  relationTo: 'pages',
+                  value: contactPage.id,
+                },
+              },
             },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
+          ],
+        },
+        depth: 0,
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    : payload.create({
+        collection: 'header',
+        data: {
+          navItems: [
+            {
+              link: {
+                type: 'custom',
+                label: 'Posts',
+                url: '/posts',
+              },
             },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
+            {
+              link: {
+                type: 'reference',
+                label: 'Contact',
+                reference: {
+                  relationTo: 'pages',
+                  value: contactPage.id,
+                },
+              },
             },
-          },
-        ],
-      },
-    }),
-  ])
+          ],
+        },
+        depth: 0,
+        context: {
+          disableRevalidate: true,
+        },
+      }))
+
+  // Find or create footer document
+  const existingFooter = await payload.find({
+    collection: 'footer',
+    limit: 1,
+    where: {},
+  })
+
+  await (existingFooter.docs[0]
+    ? payload.update({
+        id: existingFooter.docs[0].id,
+        collection: 'footer',
+        data: {
+          navItems: [
+            {
+              link: {
+                type: 'custom',
+                label: 'Admin',
+                url: '/admin',
+              },
+            },
+            {
+              link: {
+                type: 'custom',
+                label: 'Source Code',
+                newTab: true,
+                url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
+              },
+            },
+            {
+              link: {
+                type: 'custom',
+                label: 'Payload',
+                newTab: true,
+                url: 'https://payloadcms.com/',
+              },
+            },
+          ],
+        },
+        depth: 0,
+        context: {
+          disableRevalidate: true,
+        },
+      })
+    : payload.create({
+        collection: 'footer',
+        data: {
+          navItems: [
+            {
+              link: {
+                type: 'custom',
+                label: 'Admin',
+                url: '/admin',
+              },
+            },
+            {
+              link: {
+                type: 'custom',
+                label: 'Source Code',
+                newTab: true,
+                url: 'https://github.com/payloadcms/payload/tree/main/templates/website',
+              },
+            },
+            {
+              link: {
+                type: 'custom',
+                label: 'Payload',
+                newTab: true,
+                url: 'https://payloadcms.com/',
+              },
+            },
+          ],
+        },
+        depth: 0,
+        context: {
+          disableRevalidate: true,
+        },
+      }))
 
   payload.logger.info('Seeded database successfully!')
 }

@@ -200,6 +200,16 @@ export interface Page {
         }[]
       | null;
     media?: (number | null) | Media;
+    animation?: {
+      textAnimation?: ('fadeUp' | 'fadeDown' | 'fade' | 'slideLeft' | 'slideRight' | 'scale' | 'none') | null;
+      linksAnimation?: ('stagger' | 'fade' | 'slideUp' | 'slideLeft' | 'scale' | 'none') | null;
+      imageAnimation?: ('fade' | 'zoom' | 'slideUp' | 'slideDown' | 'none') | null;
+      duration?: ('fast' | 'normal' | 'slow' | 'verySlow') | null;
+      /**
+       * Delay before animation starts (0-2 seconds)
+       */
+      delay?: number | null;
+    };
   };
   layout: (
     | CallToActionBlock
@@ -1547,6 +1557,15 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
             };
         media?: T;
+        animation?:
+          | T
+          | {
+              textAnimation?: T;
+              linksAnimation?: T;
+              imageAnimation?: T;
+              duration?: T;
+              delay?: T;
+            };
       };
   layout?:
     | T
