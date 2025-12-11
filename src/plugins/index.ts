@@ -115,13 +115,19 @@ export const plugins: Plugin[] = [
       includeDefaultField: false,
     },
   }),
-  uploadthingStorage({
-    collections: {
-      media: true,
-    },
-    options: {
-      token: String(process.env.UPLOADTHING_TOKEN),
-    }
-  }),
+  // Solo activar uploadthing si hay token configurado (producción)
+  // En desarrollo local, se usará staticDir de la colección Media
+  ...(process.env.UPLOADTHING_TOKEN
+    ? [
+        uploadthingStorage({
+          collections: {
+            media: true,
+          },
+          options: {
+            token: String(process.env.UPLOADTHING_TOKEN),
+          },
+        }),
+      ]
+    : []),
 
 ]
