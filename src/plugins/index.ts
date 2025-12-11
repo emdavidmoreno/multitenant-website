@@ -4,6 +4,7 @@ import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { multiTenantPlugin } from '@payloadcms/plugin-multi-tenant'
+import { uploadthingStorage } from '@payloadcms/storage-uploadthing'
 import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
@@ -114,4 +115,13 @@ export const plugins: Plugin[] = [
       includeDefaultField: false,
     },
   }),
+  uploadthingStorage({
+    collections: {
+      media: true,
+    },
+    options: {
+      token: String(process.env.UPLOADTHING_TOKEN),
+    }
+  }),
+
 ]
