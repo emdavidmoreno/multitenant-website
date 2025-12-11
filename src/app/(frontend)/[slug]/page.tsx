@@ -12,29 +12,44 @@ import { RenderHero } from '@/heros/RenderHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+import { getTenantFromHeaders } from '@/utilities/getTenantFromHeaders'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
-  const pages = await payload.find({
-    collection: 'pages',
-    draft: false,
+  
+  const tenants = await payload.find({
+    collection: 'tenants',
     limit: 1000,
-    overrideAccess: false,
     pagination: false,
-    select: {
-      slug: true,
-    },
   })
 
-  const params = pages.docs
-    ?.filter((doc) => {
-      return doc.slug !== 'home'
-    })
-    .map(({ slug }) => {
-      return { slug }
-    })
+  const params = await Promise.all(
+    tenants.docs.map(async (tenant) => {
+      const pages = await payload.find({
+        collection: 'pages',
+        draft: false,
+        limit: 1000,
+        overrideAccess: false,
+        pagination: false,
+        select: {
+          slug: true,
+        },
+        where: {
+          'tenant.id': { equals: tenant.id },
+        },
+      })
 
-  return params
+      return pages.docs
+        ?.filter((doc) => {
+          return doc.slug !== 'home'
+        })
+        .map(({ slug }) => {
+          return { slug }
+        })
+    }),
+  )
+
+  return params.flat()
 }
 
 type Args = {
@@ -49,10 +64,12 @@ export default async function Page({ params: paramsPromise }: Args) {
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
   const url = '/' + decodedSlug
+  const tenant = await getTenantFromHeaders()
   let page: RequiredDataFromCollectionSlug<'pages'> | null
 
   page = await queryPageBySlug({
     slug: decodedSlug,
+    tenantId: tenant?.id,
   })
 
   // Remove this code once your website is seeded
@@ -84,17 +101,29 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
   const { slug = 'home' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
+  const tenant = await getTenantFromHeaders()
   const page = await queryPageBySlug({
     slug: decodedSlug,
+    tenantId: tenant?.id,
   })
 
   return generateMeta({ doc: page })
 }
 
-const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
+const queryPageBySlug = cache(async ({ slug, tenantId }: { slug: string; tenantId?: number }) => {
   const { isEnabled: draft } = await draftMode()
 
   const payload = await getPayload({ config: configPromise })
+
+  const where: any = {
+    slug: {
+      equals: slug,
+    },
+  }
+
+  if (tenantId) {
+    where['tenant.id'] = { equals: tenantId }
+  }
 
   const result = await payload.find({
     collection: 'pages',
@@ -102,11 +131,7 @@ const queryPageBySlug = cache(async ({ slug }: { slug: string }) => {
     limit: 1,
     pagination: false,
     overrideAccess: draft,
-    where: {
-      slug: {
-        equals: slug,
-      },
-    },
+    where,
   })
 
   return result.docs?.[0] || null

@@ -7,12 +7,19 @@ import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
 import PageClient from './page.client'
+import { getTenantFromHeaders } from '@/utilities/getTenantFromHeaders'
 
 export const dynamic = 'force-static'
 export const revalidate = 600
 
 export default async function Page() {
   const payload = await getPayload({ config: configPromise })
+  const tenant = await getTenantFromHeaders()
+
+  const where: any = {}
+  if (tenant?.id) {
+    where['tenant.id'] = { equals: tenant.id }
+  }
 
   const posts = await payload.find({
     collection: 'posts',
@@ -25,6 +32,7 @@ export default async function Page() {
       categories: true,
       meta: true,
     },
+    where,
   })
 
   return (
